@@ -1,6 +1,5 @@
 FROM ubuntu:25.10
 
-# Install base dependencies
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       ca-certificates \
@@ -8,23 +7,17 @@ RUN apt-get update && \
       gnupg \
       git \
       unzip \
+      dotnet-sdk-10.0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 22 via NodeSource
+# Node 22 required by OpenClaw (engines: >=22.12.0)
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Bun (required for build scripts) - install globally
 RUN curl -fsSL https://bun.sh/install | BUN_INSTALL=/usr/local bash
 ENV PATH="/usr/local/bin:${PATH}"
 
-# Install .NET 10 SDK (for Forge to build .NET projects locally)
-RUN curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 10.0 --install-dir /usr/share/dotnet
-ENV PATH="/usr/share/dotnet:${PATH}"
-ENV DOTNET_ROOT="/usr/share/dotnet"
-
-# Enable corepack for pnpm
 RUN corepack enable
 
 RUN useradd -m -s /bin/bash openclaw
