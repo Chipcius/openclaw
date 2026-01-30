@@ -24,10 +24,8 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       rm -rf /var/lib/apt/lists/*; \
     fi
 
-COPY dist ./dist
-COPY node_modules ./node_modules
-COPY package.json ./
-COPY ui/dist ./ui/dist
+# Copy pre-built artifacts from CI
+COPY . .
 
 ENV NODE_ENV=production
 ENV OPENCLAW_PREFER_PNPM=1
