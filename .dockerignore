@@ -15,8 +15,9 @@
 *.mov
 *.wav
 *.mp3
-node_modules
-**/node_modules
+# node_modules - needed for runtime image (pre-built by CI)
+# node_modules
+# **/node_modules
 .pnpm-store
 **/.pnpm-store
 .turbo
@@ -31,9 +32,9 @@ coverage
 tmp
 **/tmp
 
-# build artifacts
-dist
-**/dist
+# build artifacts - needed for runtime image (pre-built by CI)
+# dist
+# **/dist
 apps/macos/.build
 apps/ios/build
 **/*.trace
