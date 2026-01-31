@@ -49,6 +49,7 @@ import {
   requestHeartbeatNow,
   setHeartbeatWakeHandler,
 } from "./heartbeat-wake.js";
+import { pollMissionControlActivity } from "./mission-control.js";
 import type { OutboundSendDeps } from "./outbound/deliver.js";
 import { deliverOutboundPayloads } from "./outbound/deliver.js";
 import {
@@ -861,27 +862,39 @@ export function startHeartbeatRunner(opts: {
     const now = startedAt;
     let ran = false;
 
-    for (const agent of state.agents.values()) {
-      if (isInterval && now < agent.nextDueMs) {
-        continue;
-      }
+     for (const agent of state.agents.values()) {
+       if (isInterval && now < agent.nextDueMs) {
+         continue;
+       }
 
-      const res = await runOnce({
-        cfg: state.cfg,
-        agentId: agent.agentId,
-        heartbeat: agent.heartbeat,
-        reason,
-        deps: { runtime: state.runtime },
-      });
-      if (res.status === "skipped" && res.reason === "requests-in-flight") {
-        return res;
-      }
-      if (res.status !== "skipped" || res.reason !== "disabled") {
-        agent.lastRunMs = now;
-        agent.nextDueMs = now + agent.intervalMs;
-      }
-      if (res.status === "ran") ran = true;
-    }
+       const res = await runOnce({
+         cfg: state.cfg,
+         agentId: agent.agentId,
+         heartbeat: agent.heartbeat,
+         reason,
+         deps: { runtime: state.runtime },
+       });
+       if (res.status === "skipped" && res.reason === "requests-in-flight") {
+         return res;
+       }
+       if (res.status !== "skipped" || res.reason !== "disabled") {
+         agent.lastRunMs = now;
+         agent.nextDueMs = now + agent.intervalMs;
+       }
+       if (res.status === "ran") ran = true;
+
+       await pollMissionControlActivity({
+         url: process.env.MC_URL || "http://10.8.0.30:8080",
+         enabled: true,
+         agentId: agent.agentId,
+         pollTimeoutMs: 5000,
+       }).catch((err) => {
+         log.warn("MC polling error", {
+           agentId: agent.agentId,
+           error: err instanceof Error ? err.message : String(err),
+         });
+       });
+     }
 
     scheduleNext();
     if (ran) return { status: "ran", durationMs: Date.now() - startedAt };
