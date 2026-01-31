@@ -53,7 +53,7 @@ export async function fetchNotifications(
     const url = `${config.url}/api/agents/${config.agentId}/notifications`;
     const response = await fetch(url, {
       method: "GET",
-      timeout: config.pollTimeoutMs ?? 5000,
+      signal: AbortSignal.timeout(config.pollTimeoutMs ?? 5000),
     });
 
     if (!response.ok) {
@@ -83,7 +83,7 @@ export async function fetchUnreadMessages(
     const url = `${config.url}/api/agents/${config.agentId}/messages/unread`;
     const response = await fetch(url, {
       method: "GET",
-      timeout: config.pollTimeoutMs ?? 5000,
+      signal: AbortSignal.timeout(config.pollTimeoutMs ?? 5000),
     });
 
     if (!response.ok) {
@@ -113,7 +113,7 @@ export async function fetchPendingTasks(
     const url = `${config.url}/api/tasks?assigneeId=${config.agentId}&status=0`;
     const response = await fetch(url, {
       method: "GET",
-      timeout: config.pollTimeoutMs ?? 5000,
+      signal: AbortSignal.timeout(config.pollTimeoutMs ?? 5000),
     });
 
     if (!response.ok) {
@@ -141,7 +141,7 @@ export async function markMessageAsRead(config: MissionControlConfig, messageId:
     const url = `${config.url}/api/messages/${messageId}/read`;
     const response = await fetch(url, {
       method: "POST",
-      timeout: config.pollTimeoutMs ?? 5000,
+      signal: AbortSignal.timeout(config.pollTimeoutMs ?? 5000),
     });
 
     if (!response.ok) {
@@ -185,7 +185,7 @@ export async function sendMessage(
         body,
         type,
       }),
-      timeout: config.pollTimeoutMs ?? 5000,
+      signal: AbortSignal.timeout(config.pollTimeoutMs ?? 5000),
     });
 
     if (!response.ok) {
@@ -213,7 +213,7 @@ export async function claimTask(config: MissionControlConfig, taskId: number): P
     const url = `${config.url}/api/tasks/${taskId}/claim`;
     const response = await fetch(url, {
       method: "POST",
-      timeout: config.pollTimeoutMs ?? 5000,
+      signal: AbortSignal.timeout(config.pollTimeoutMs ?? 5000),
     });
 
     if (!response.ok) {
@@ -252,7 +252,7 @@ export async function addTaskComment(
         agentId: config.agentId,
         content,
       }),
-      timeout: config.pollTimeoutMs ?? 5000,
+      signal: AbortSignal.timeout(config.pollTimeoutMs ?? 5000),
     });
 
     if (!response.ok) {
