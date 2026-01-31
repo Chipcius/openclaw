@@ -6,7 +6,7 @@ RUN apt-get update && \
       # Core
       ca-certificates curl gnupg git unzip \
       # Languages & SDKs
-      dotnet-sdk-10.0 openssh-client golang-go \
+      dotnet-sdk-10.0 openssh-client golang-go rustc cargo zig \
       # Essential CLI tools (P0)
       jq python3-pip less tree file wget zip gettext-base \
       # Development tools (P1)
@@ -31,15 +31,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # Bun runtime
 RUN curl -fsSL https://bun.sh/install | BUN_INSTALL=/usr/local bash
 ENV PATH="/usr/local/bin:${PATH}"
-
-# Rust (via rustup for latest stable)
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
-ENV PATH="/root/.cargo/bin:${PATH}"
-
-# Zig (latest release)
-RUN ZIG_VERSION="0.13.0" && \
-    curl -L "https://ziglang.org/download/${ZIG_VERSION}/zig-linux-$(uname -m)-${ZIG_VERSION}.tar.xz" | tar -xJ -C /usr/local && \
-    ln -s /usr/local/zig-linux-*-${ZIG_VERSION}/zig /usr/local/bin/zig
 
 RUN useradd -m -s /bin/bash openclaw
 
